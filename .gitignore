@@ -21,3 +21,28 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+.idea/*
+*.iml
+
+# dependencies
+appointment-tracker-frontend/node_modules
+appointment-tracker-frontend/.pnp
+appointment-tracker-frontend/.pnp.js
+
+# testing
+appointment-tracker-frontend/coverage
+
+# production
+appointment-tracker-frontend/build
+
+# misc
+appointment-tracker-frontend/.DS_Store
+appointment-tracker-frontend/.env.local
+appointment-tracker-frontend/.env.development.local
+appointment-tracker-frontend/.env.test.local
+appointment-tracker-frontend/.env.production.local
+
+appointment-tracker-frontend/npm-debug.log*
+appointment-tracker-frontend/yarn-debug.log*
+appointment-tracker-frontend/yarn-error.log*

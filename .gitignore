@@ -24,6 +24,8 @@ hs_err_pid*
 
 .idea/*
 *.iml
+out/
+target/
 
 # dependencies
 appointment-tracker-frontend/node_modules

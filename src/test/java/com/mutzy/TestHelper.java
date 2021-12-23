@@ -3,7 +3,8 @@ package com.mutzy;
 import com.mutzy.domain.Appointment;
 import com.mutzy.domain.Location;
 import com.mutzy.domain.Person;
-import com.mutzy.dto.AppointmentDto;
+import com.mutzy.dto.AppointmentRequestDto;
+import com.mutzy.dto.AppointmentResponseDto;
 import com.mutzy.dto.LocationDto;
 import com.mutzy.dto.PersonDto;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -31,14 +32,23 @@ public class TestHelper {
         return appointment;
     }
 
+    public static AppointmentResponseDto createAppointmentResponse() {
+        AppointmentResponseDto dto = new AppointmentResponseDto();
+        dto.setDescription(RandomStringUtils.randomAlphanumeric(10));
+        dto.setDate(Date.from(Instant.ofEpochSecond(random.longs(START_INSTANT, END_INSTANT).findFirst().getAsLong())));
+        dto.setLocation(createLocationDto());
+        dto.setPerson(createPersonDto());
+        return dto;
+    }
+
     public static Appointment createAppointment(Date date) {
         Appointment appointment = createAppointment();
         appointment.setDate(date);
         return appointment;
     }
 
-    public static AppointmentDto createAppointmentDto() {
-        AppointmentDto dto = new AppointmentDto();
+    public static AppointmentRequestDto createAppointmentDto() {
+        AppointmentRequestDto dto = new AppointmentRequestDto();
         dto.setDate("2022-12-20");
         dto.setTime("12:30");
         dto.setDescription(RandomStringUtils.randomAlphanumeric(10));
@@ -83,6 +93,14 @@ public class TestHelper {
         List<Appointment> appointments = new ArrayList<>();
         for(int i = 0; i < count; i++) {
             appointments.add(createAppointment());
+        }
+        return appointments;
+    }
+
+    public static List<AppointmentResponseDto> createAppointmentResponseList(int count) {
+        List<AppointmentResponseDto> appointments = new ArrayList<>();
+        for(int i = 0; i < count; i++) {
+            appointments.add(createAppointmentResponse());
         }
         return appointments;
     }

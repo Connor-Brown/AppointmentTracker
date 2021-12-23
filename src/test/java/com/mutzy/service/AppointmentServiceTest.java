@@ -8,7 +8,8 @@ import com.mutzy.dao.PersonDao;
 import com.mutzy.domain.Appointment;
 import com.mutzy.domain.Location;
 import com.mutzy.domain.Person;
-import com.mutzy.dto.AppointmentDto;
+import com.mutzy.dto.AppointmentRequestDto;
+import com.mutzy.dto.AppointmentResponseDto;
 import com.mutzy.dto.LocationDto;
 import com.mutzy.dto.PersonDto;
 import com.mutzy.utils.Constants;
@@ -21,6 +22,7 @@ import javax.validation.ValidationException;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 
@@ -35,7 +37,7 @@ class AppointmentServiceTest {
     @Test
     void testFindAllAppointments_WhenNoAppointmentsStored() {
         Mockito.when(mockAppointmentDao.findAll()).thenReturn(Collections::emptyIterator);
-        List<Appointment> appointments = service.findAllAppointments();
+        List<AppointmentResponseDto> appointments = service.findAllAppointments();
         Assertions.assertNotNull(appointments);
         Assertions.assertTrue(appointments.isEmpty());
     }
@@ -47,28 +49,34 @@ class AppointmentServiceTest {
         Appointment january2030 = TestHelper.createAppointment(Constants.DATE_FORMAT.parse("2030-01-27"));
 
         Mockito.when(mockAppointmentDao.findAll()).thenReturn(() -> new ArrayIterator<>(new Appointment[]{june2020, may2019, january2030}));
-        List<Appointment> appointments = service.findAllAppointments();
+        List<AppointmentResponseDto> appointments = service.findAllAppointments();
 
         Assertions.assertNotNull(appointments);
         Assertions.assertEquals(3, appointments.size());
-        Assertions.assertEquals(may2019, appointments.get(0));
-        Assertions.assertEquals(june2020, appointments.get(1));
-        Assertions.assertEquals(january2030, appointments.get(2));
+        Assertions.assertEquals(may2019.getDate(), appointments.get(0).getDate());
+        Assertions.assertEquals(june2020.getDate(), appointments.get(1).getDate());
+        Assertions.assertEquals(january2030.getDate(), appointments.get(2).getDate());
     }
 
     @Test
     void testCreateAppointment_WithValidDto() throws ValidationException {
-        AppointmentDto dto = TestHelper.createAppointmentDto();
+        AppointmentRequestDto dto = TestHelper.createAppointmentDto();
         Appointment expectedAppointment = TestHelper.createAppointment();
+        Person expectedPerson = TestHelper.createPerson();
+        Location expectedLocation = TestHelper.createLocation();
 
         Mockito.when(mockAppointmentDao.save(any())).thenReturn(expectedAppointment);
-        Appointment appointment = service.createAppointment(dto);
-        Assertions.assertEquals(expectedAppointment, appointment);
+        Mockito.when(mockPersonDao.findById(expectedAppointment.getPersonId())).thenReturn(Optional.of(expectedPerson));
+        Mockito.when(mockLocationDao.findById(expectedAppointment.getLocationId())).thenReturn(Optional.of(expectedLocation));
+
+        AppointmentResponseDto appointment = service.createAppointment(dto);
+        Assertions.assertEquals(expectedAppointment.getDate(), appointment.getDate());
+        Assertions.assertEquals(expectedAppointment.getDescription(), appointment.getDescription());
     }
 
     @Test
     void testCreateAppointment_WithInvalidDto() throws ValidationException {
-        AppointmentDto dto = TestHelper.createAppointmentDto();
+        AppointmentRequestDto dto = TestHelper.createAppointmentDto();
         Mockito.doThrow(new ValidationException("some message")).when(mockValidationUtils).validateAppointmentDto(dto);
 
         ValidationException exception = Assertions.assertThrows(ValidationException.class,

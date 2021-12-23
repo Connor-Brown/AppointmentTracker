@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-public class AppointmentDto {
+public class AppointmentRequestDto {
     private String description;
     private String date;
     private String time;
@@ -13,12 +13,12 @@ public class AppointmentDto {
 
     @Override
     public String toString() {
-        return "AppointmentDto{" +
-                "description=" + description +"," +
-                "date=" + date +"," +
-                "time=" + time +"," +
-                "personId=" + personId +"," +
-                "locationId=" + locationId +"," +
+        return "AppointmentRequestDto{" +
+                "description=" + description + "," +
+                "date=" + date + "," +
+                "time=" + time + "," +
+                "personId=" + personId + "," +
+                "locationId=" + locationId +
                 "}";
     }
 }

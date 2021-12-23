@@ -2,7 +2,7 @@ package com.mutzy.utils;
 
 import com.mutzy.dao.LocationDao;
 import com.mutzy.dao.PersonDao;
-import com.mutzy.dto.AppointmentDto;
+import com.mutzy.dto.AppointmentRequestDto;
 import com.mutzy.dto.LocationDto;
 import com.mutzy.dto.PersonDto;
 import lombok.extern.slf4j.Slf4j;
@@ -52,7 +52,7 @@ public class ValidationUtils {
         checkDtoFieldSize(dto.getDescription(), Constants.MAX_LOCATION_DESCRIPTION_LENGTH, LOCATION_DESCRIPTION_FIELD);
     }
 
-    public void validateAppointmentDto(AppointmentDto dto) throws ValidationException {
+    public void validateAppointmentDto(AppointmentRequestDto dto) throws ValidationException {
         if (dto == null) {
             throw new ValidationException("Cannot save a blank appointment");
         }

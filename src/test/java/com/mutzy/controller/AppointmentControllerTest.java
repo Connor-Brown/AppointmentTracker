@@ -4,7 +4,8 @@ import com.mutzy.TestHelper;
 import com.mutzy.domain.Appointment;
 import com.mutzy.domain.Location;
 import com.mutzy.domain.Person;
-import com.mutzy.dto.AppointmentDto;
+import com.mutzy.dto.AppointmentRequestDto;
+import com.mutzy.dto.AppointmentResponseDto;
 import com.mutzy.dto.LocationDto;
 import com.mutzy.dto.PersonDto;
 import com.mutzy.service.AppointmentService;
@@ -30,7 +31,7 @@ class AppointmentControllerTest {
 
     @BeforeEach
     void setUpCommonMocks() {
-        List<Appointment> appointments = Collections.singletonList(TestHelper.createAppointment());
+        List<AppointmentResponseDto> appointments = Collections.singletonList(TestHelper.createAppointmentResponse());
         Mockito.when(mockAppointmentService.findAllAppointments()).thenReturn(appointments);
 
         List<Person> people = Collections.singletonList(TestHelper.createPerson());
@@ -63,7 +64,7 @@ class AppointmentControllerTest {
 
     @Test
     void testGetAppointments_ShouldShowAllReturnedAppointments() {
-        List<Appointment> appointments = TestHelper.createAppointmentList(2);
+        List<AppointmentResponseDto> appointments = TestHelper.createAppointmentResponseList(2);
         Mockito.when(mockAppointmentService.findAllAppointments()).thenReturn(appointments);
         String view = controller.getAppointments(model);
 
@@ -81,8 +82,8 @@ class AppointmentControllerTest {
     void testCreateAppointment_WhenRequestIsValid_ShouldCreateAppointmentAndUpdateModel() {
         int initialSize = 3;
         List<Appointment> initialAppointments = TestHelper.createAppointmentList(initialSize);
-        Appointment expectedAppointment = TestHelper.createAppointment();
-        List<Appointment> allAppointments = TestHelper.createAppointmentList(initialSize);
+        AppointmentResponseDto expectedAppointment = TestHelper.createAppointmentResponse();
+        List<AppointmentResponseDto> allAppointments = TestHelper.createAppointmentResponseList(initialSize);
         allAppointments.add(expectedAppointment);
 
         model.addAttribute("appointments", initialAppointments);
@@ -103,8 +104,8 @@ class AppointmentControllerTest {
 
     @Test
     void testCreateAppointment_WhenExtraValidationFails_ShouldDisplayErrorToUser() {
-        List<Appointment> initialAppointments = TestHelper.createAppointmentList(2);
-        AppointmentDto dto = TestHelper.createAppointmentDto();
+        List<AppointmentResponseDto> initialAppointments = TestHelper.createAppointmentResponseList(2);
+        AppointmentRequestDto dto = TestHelper.createAppointmentDto();
         ValidationException exception = new ValidationException("some field failed validation");
 
         model.addAttribute("appointments", initialAppointments);
@@ -117,8 +118,8 @@ class AppointmentControllerTest {
 
     @Test
     void testCreateAppointment_WhenUnknownErrorOccurs_ShouldDisplayErrorToUser() {
-        List<Appointment> initialAppointments = TestHelper.createAppointmentList(2);
-        AppointmentDto dto = TestHelper.createAppointmentDto();
+        List<AppointmentResponseDto> initialAppointments = TestHelper.createAppointmentResponseList(2);
+        AppointmentRequestDto dto = TestHelper.createAppointmentDto();
 
         model.addAttribute("appointments", initialAppointments);
         Mockito.when(mockAppointmentService.createAppointment(any())).thenReturn(null);
@@ -230,7 +231,7 @@ class AppointmentControllerTest {
         checkLocationValidationFields(view, initialLocations, dto);
     }
 
-    private void checkAppointmentValidationFields(String view, List<Appointment> initialAppointments, AppointmentDto dto) {
+    private void checkAppointmentValidationFields(String view, List<AppointmentResponseDto> initialAppointments, AppointmentRequestDto dto) {
         Assertions.assertEquals(AppointmentController.APPOINTMENTS_VIEW, view);
         Object modelAppointments = model.getAttribute("appointments");
         Assertions.assertTrue(modelAppointments instanceof List);

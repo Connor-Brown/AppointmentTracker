@@ -34,6 +34,7 @@ public class TestHelper {
     public static AppointmentDto createAppointmentDto() {
         AppointmentDto dto = new AppointmentDto();
         dto.setDate("2022-12-20T13:40:20");
+        dto.setTime("12:30");
         dto.setDescription(RandomStringUtils.randomAlphanumeric(10));
         dto.setLocationId(1); // this is valid if we have a location in the database with id 1
         dto.setPersonId(1); // this is valid if we have a person in the database with id 1

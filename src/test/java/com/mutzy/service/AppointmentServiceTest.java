@@ -95,6 +95,22 @@ class AppointmentServiceTest {
         helpTestCreateAppointmentValidationError(dto);
     }
 
+    @Test
+    void testInvalidDto_InvalidTime() {
+        AppointmentDto dto = TestHelper.createAppointmentDto();
+        dto.setTime("");
+        helpTestCreateAppointmentValidationError(dto);
+
+        dto.setTime(null);
+        helpTestCreateAppointmentValidationError(dto);
+
+        dto.setTime("letters in this string");
+        helpTestCreateAppointmentValidationError(dto);
+
+        dto.setTime("&$%&&!");
+        helpTestCreateAppointmentValidationError(dto);
+    }
+
     private void helpTestCreateAppointmentValidationError(AppointmentDto dto) {
         ValidationException exception = Assertions.assertThrows(ValidationException.class,
                 () -> service.createAppointment(dto));

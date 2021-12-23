@@ -14,6 +14,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -22,7 +23,10 @@ public class AppointmentService {
 
     private final AppointmentDao appointmentDao;
     private static final AppointmentComparator comparator = new AppointmentComparator();
+
     private final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private final DateFormat timeFormat = new SimpleDateFormat("HH:mm");
+    private final DateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
     private static final int MAX_DESCRIPTION_LENGTH = 1024;
 
@@ -58,10 +62,11 @@ public class AppointmentService {
 
     private void validateAppointmentDto(AppointmentDto dto) throws ValidationException {
         if (dto == null) {
-            throw new ValidationException("Cannot save a blank Appointment");
+            throw new ValidationException("Cannot save a blank appointment");
         }
         validateDescription(dto.getDescription());
         validateDate(dto.getDate());
+        validateTime(dto.getTime());
         validatePersonId(dto.getPersonId());
         validateLocationId(dto.getLocationId());
     }
@@ -89,6 +94,18 @@ public class AppointmentService {
         }
     }
 
+    private void validateTime(String time) throws ValidationException {
+        if (StringUtils.isEmpty(time)) {
+            throw new ValidationException("Appointment date cannot be empty");
+        }
+        try {
+            // just check if we are able to successfully parse the time
+            timeFormat.parse(time);
+        } catch (ParseException e) {
+            throw new ValidationException("Invalid date format");
+        }
+    }
+
     private void validatePersonId(Integer personId) throws ValidationException {
         //TODO
     }
@@ -103,8 +120,10 @@ public class AppointmentService {
             log.info("CONNOR: dto {}", dto);
             appointment.setPersonId(dto.getPersonId());
             appointment.setLocationId(dto.getLocationId());
-            appointment.setDescription(dto.getDescription().substring(0, MAX_DESCRIPTION_LENGTH));
-            appointment.setDate(dateFormat.parse(dto.getDate())); //TODO add time into this
+            appointment.setDescription(dto.getDescription().length() > MAX_DESCRIPTION_LENGTH ?
+                    dto.getDescription().substring(0, MAX_DESCRIPTION_LENGTH) :
+                    dto.getDescription());
+            appointment.setDate(dateTimeFormat.parse(String.format("%s %s", dto.getDate(), dto.getTime())));
             return appointment;
         } catch (ParseException e) {
             log.warn("Failed to parse given date", e);

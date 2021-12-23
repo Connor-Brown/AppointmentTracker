@@ -3,7 +3,7 @@ package com.mutzy.utils;
 import com.mutzy.domain.Appointment;
 import com.mutzy.domain.Location;
 import com.mutzy.domain.Person;
-import com.mutzy.dto.AppointmentDto;
+import com.mutzy.dto.AppointmentRequestDto;
 import com.mutzy.dto.LocationDto;
 import com.mutzy.dto.PersonDto;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ public class ObjectMapper {
         return instance;
     }
 
-    public Appointment mapDtoToDomain(AppointmentDto dto) {
+    public Appointment mapDtoToDomain(AppointmentRequestDto dto) {
         Appointment appointment = new Appointment();
         try {
             appointment.setPersonId(dto.getPersonId());
@@ -59,6 +59,22 @@ public class ObjectMapper {
                 dto.getDescription().substring(0, Constants.MAX_LOCATION_DESCRIPTION_LENGTH) :
                 dto.getDescription());
         return location;
+    }
+
+    public PersonDto mapDomainToDto(Person domain) {
+        PersonDto dto = new PersonDto();
+        dto.setId(domain.getId());
+        dto.setName(domain.getName());
+        dto.setAffiliation(domain.getAffiliation());
+        return dto;
+    }
+
+    public LocationDto mapDomainToDto(Location domain) {
+        LocationDto dto = new LocationDto();
+        dto.setId(domain.getId());
+        dto.setName(domain.getName());
+        dto.setDescription(domain.getDescription());
+        return dto;
     }
 
 }

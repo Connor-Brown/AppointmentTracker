@@ -6,7 +6,8 @@ import com.mutzy.dao.PersonDao;
 import com.mutzy.domain.Appointment;
 import com.mutzy.domain.Location;
 import com.mutzy.domain.Person;
-import com.mutzy.dto.AppointmentDto;
+import com.mutzy.dto.AppointmentRequestDto;
+import com.mutzy.dto.AppointmentResponseDto;
 import com.mutzy.dto.LocationDto;
 import com.mutzy.dto.PersonDto;
 import com.mutzy.utils.ObjectMapper;
@@ -20,6 +21,8 @@ import javax.validation.ValidationException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -42,12 +45,12 @@ public class AppointmentService {
         this.validationUtils = validationUtils;
     }
 
-    public List<Appointment> findAllAppointments() {
+    public List<AppointmentResponseDto> findAllAppointments() {
         List<Appointment> appointments = new ArrayList<>();
         Iterable<Appointment> results = appointmentDao.findAll();
         results.forEach(appointments::add);
         appointments.sort(appointmentComparator);
-        return appointments;
+        return appointments.stream().map(this::mapAppointmentToResponseDto).collect(Collectors.toList());
     }
 
     public List<Person> findAllPeople() {
@@ -69,18 +72,42 @@ public class AppointmentService {
     /**
      * Attempts to save the given appointment.
      * Can throw a ValidationException if the given AppointmentDto fails validation
-     * @param appointmentDto The Appointment object to save
+     * @param appointmentRequestDto The Appointment object to save
      * @return The created Appointment object
      */
-    public Appointment createAppointment(AppointmentDto appointmentDto) throws ValidationException {
-        validationUtils.validateAppointmentDto(appointmentDto);
+    public AppointmentResponseDto createAppointment(AppointmentRequestDto appointmentRequestDto) throws ValidationException {
+        validationUtils.validateAppointmentDto(appointmentRequestDto);
         try {
-          Appointment appointment = ObjectMapper.getInstance().mapDtoToDomain(appointmentDto);
-          return appointmentDao.save(appointment);
+            Appointment appointment = ObjectMapper.getInstance().mapDtoToDomain(appointmentRequestDto);
+            Appointment savedAppointment = appointmentDao.save(appointment);
+            return mapAppointmentToResponseDto(savedAppointment);
         } catch (Exception e) {
             log.error("An unexpected exception occurred creating an appointment", e);
             return null;
         }
+    }
+
+    private AppointmentResponseDto mapAppointmentToResponseDto(Appointment appointment) {
+        AppointmentResponseDto dto = new AppointmentResponseDto();
+        dto.setDate(appointment.getDate());
+        dto.setDescription(appointment.getDescription());
+        if (appointment.getPersonId() != null) {
+            Optional<Person> person = personDao.findById(appointment.getPersonId());
+            if (person.isPresent()) {
+                dto.setPerson(ObjectMapper.getInstance().mapDomainToDto(person.get()));
+            } else {
+                log.error("Cannot find person with id {}", appointment.getPersonId());
+            }
+        }
+        if (appointment.getLocationId() != null) {
+            Optional<Location> location = locationDao.findById(appointment.getLocationId());
+            if (location.isPresent()) {
+                dto.setLocation(ObjectMapper.getInstance().mapDomainToDto(location.get()));
+            } else {
+                log.error("Cannot find location with id {}", appointment.getLocationId());
+            }
+        }
+        return dto;
     }
 
     public Person createPerson(PersonDto personDto) throws ValidationException {

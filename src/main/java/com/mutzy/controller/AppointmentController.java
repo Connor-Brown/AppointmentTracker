@@ -3,7 +3,8 @@ package com.mutzy.controller;
 import com.mutzy.domain.Appointment;
 import com.mutzy.domain.Location;
 import com.mutzy.domain.Person;
-import com.mutzy.dto.AppointmentDto;
+import com.mutzy.dto.AppointmentRequestDto;
+import com.mutzy.dto.AppointmentResponseDto;
 import com.mutzy.dto.LocationDto;
 import com.mutzy.dto.PersonDto;
 import com.mutzy.service.AppointmentService;
@@ -37,7 +38,7 @@ public class AppointmentController {
         this.appointmentService = appointmentService;
     }
 
-    @GetMapping
+    @GetMapping // ideally this would have some sort of pagination rather than returning ALL the data in our database table
     public String getAppointments(Model model) {
         log.info("Received request to get all appointments by date");
         return redirectToAppointmentsPage(model);
@@ -45,14 +46,14 @@ public class AppointmentController {
 
     @Deprecated // a POST request to a /create endpoint is redundant. Work to migrate any traffic to createAppointment() method below
     @PostMapping("/create")
-    public String createAppointmentDeprecated(@ModelAttribute AppointmentDto appointment, BindingResult bindingResult, Model model) {
+    public String createAppointmentDeprecated(@ModelAttribute AppointmentRequestDto appointment, BindingResult bindingResult, Model model) {
         return createAppointment(appointment, bindingResult, model);
     }
 
     @PostMapping
-    public String createAppointment(@ModelAttribute AppointmentDto appointment, BindingResult bindingResult, Model model) {
+    public String createAppointment(@ModelAttribute AppointmentRequestDto appointment, BindingResult bindingResult, Model model) {
         try {
-            Appointment createdAppointment = appointmentService.createAppointment(appointment);
+            AppointmentResponseDto createdAppointment = appointmentService.createAppointment(appointment);
             if (createdAppointment == null) {
                 return reportAppointmentFormFailureToUser("An unknown error occurred. Please reach out to support if the issue persists", model, appointment);
             }
@@ -102,7 +103,7 @@ public class AppointmentController {
     }
 
     private void populateAllAppointments(Model model) {
-        List<Appointment> appointments = Optional.ofNullable(appointmentService.findAllAppointments())
+        List<AppointmentResponseDto> appointments = Optional.ofNullable(appointmentService.findAllAppointments())
                 .orElse(Collections.emptyList());
         log.info("Found {} appointments", appointments.size());
         model.addAttribute(MODEL_KEY_APPOINTMENT_LIST, appointments);
@@ -115,7 +116,7 @@ public class AppointmentController {
     }
 
     private void resetFormObjects(Model model) {
-        model.addAttribute("appointment", new AppointmentDto());
+        model.addAttribute("appointment", new AppointmentRequestDto());
         model.addAttribute("person", new PersonDto());
         model.addAttribute("location", new LocationDto());
         model.addAttribute("appointmentValidationError", "");
@@ -131,10 +132,10 @@ public class AppointmentController {
         model.addAttribute("locations", appointmentService.findAllLocations());
     }
 
-    private String reportAppointmentFormFailureToUser(String errorMessage, Model model, AppointmentDto appointmentDto) {
+    private String reportAppointmentFormFailureToUser(String errorMessage, Model model, AppointmentRequestDto appointmentRequestDto) {
         populateAllAppointments(model);
         ensureRequiredFieldsArePopulated(model);
-        model.addAttribute("appointment", appointmentDto);
+        model.addAttribute("appointment", appointmentRequestDto);
         model.addAttribute("appointmentValidationError", errorMessage);
         return APPOINTMENTS_VIEW;
     }

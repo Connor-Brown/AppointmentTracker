@@ -3,7 +3,7 @@ package com.mutzy.utils;
 import com.mutzy.TestHelper;
 import com.mutzy.dao.LocationDao;
 import com.mutzy.dao.PersonDao;
-import com.mutzy.dto.AppointmentDto;
+import com.mutzy.dto.AppointmentRequestDto;
 import com.mutzy.dto.LocationDto;
 import com.mutzy.dto.PersonDto;
 import org.junit.jupiter.api.Assertions;
@@ -42,7 +42,7 @@ class ValidationUtilsTest {
 
     @Test
     void testInvalidAppointmentDto_InvalidDescription() { //TODO allow punctuation
-        AppointmentDto dto = TestHelper.createAppointmentDto();
+        AppointmentRequestDto dto = TestHelper.createAppointmentDto();
         dto.setDescription("");
         helpTestAppointmentValidationDto(dto);
 
@@ -55,7 +55,7 @@ class ValidationUtilsTest {
 
     @Test
     void testInvalidAppointmentDto_InvalidDate() {
-        AppointmentDto dto = TestHelper.createAppointmentDto();
+        AppointmentRequestDto dto = TestHelper.createAppointmentDto();
         dto.setDate("");
         helpTestAppointmentValidationDto(dto);
 
@@ -71,7 +71,7 @@ class ValidationUtilsTest {
 
     @Test
     void testInvalidAppointmentDto_InvalidTime() {
-        AppointmentDto dto = TestHelper.createAppointmentDto();
+        AppointmentRequestDto dto = TestHelper.createAppointmentDto();
         dto.setTime("");
         helpTestAppointmentValidationDto(dto);
 
@@ -87,7 +87,7 @@ class ValidationUtilsTest {
 
     @Test
     void testAppointmentDtoWithNullPersonId_ShouldBeValid() {
-        final AppointmentDto dto = TestHelper.createAppointmentDto();
+        final AppointmentRequestDto dto = TestHelper.createAppointmentDto();
         dto.setPersonId(null);
 
         Assertions.assertDoesNotThrow(() -> validationUtils.validateAppointmentDto(dto));
@@ -96,7 +96,7 @@ class ValidationUtilsTest {
 
     @Test
     void testAppointmentDtoWithNullLocationId_ShouldBeValid() {
-        final AppointmentDto dto = TestHelper.createAppointmentDto();
+        final AppointmentRequestDto dto = TestHelper.createAppointmentDto();
         dto.setLocationId(null);
 
         Assertions.assertDoesNotThrow(() -> validationUtils.validateAppointmentDto(dto));
@@ -175,7 +175,7 @@ class ValidationUtilsTest {
         helpTestLocationValidationDto(dto);
     }
 
-    private void helpTestAppointmentValidationDto(AppointmentDto dto) {
+    private void helpTestAppointmentValidationDto(AppointmentRequestDto dto) {
         ValidationException exception = Assertions.assertThrows(ValidationException.class,
                 () -> validationUtils.validateAppointmentDto(dto));
         Assertions.assertNotNull(exception.getMessage());

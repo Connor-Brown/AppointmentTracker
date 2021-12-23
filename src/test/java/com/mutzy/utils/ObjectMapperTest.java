@@ -4,7 +4,7 @@ import com.mutzy.TestHelper;
 import com.mutzy.domain.Appointment;
 import com.mutzy.domain.Location;
 import com.mutzy.domain.Person;
-import com.mutzy.dto.AppointmentDto;
+import com.mutzy.dto.AppointmentRequestDto;
 import com.mutzy.dto.LocationDto;
 import com.mutzy.dto.PersonDto;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -15,7 +15,7 @@ class ObjectMapperTest {
 
     @Test
     void testMapAppointmentDtoToDomain() throws Exception {
-        AppointmentDto dto = TestHelper.createAppointmentDto();
+        AppointmentRequestDto dto = TestHelper.createAppointmentDto();
         Appointment mappedDomain = ObjectMapper.getInstance().mapDtoToDomain(dto);
 
         Assertions.assertEquals(dto.getPersonId(), mappedDomain.getPersonId());
@@ -26,7 +26,7 @@ class ObjectMapperTest {
 
     @Test
     void testMapAppointmentWithTrimmedValue() {
-        AppointmentDto dto = TestHelper.createAppointmentDto();
+        AppointmentRequestDto dto = TestHelper.createAppointmentDto();
         dto.setDescription(RandomStringUtils.randomAlphanumeric(Constants.MAX_APPOINTMENT_DESCRIPTION_LENGTH + 10));
         Appointment mappedDomain = ObjectMapper.getInstance().mapDtoToDomain(dto);
         Assertions.assertEquals(dto.getDescription().substring(0, Constants.MAX_APPOINTMENT_DESCRIPTION_LENGTH), mappedDomain.getDescription());
@@ -74,6 +74,24 @@ class ObjectMapperTest {
         dto.setDescription(RandomStringUtils.randomAlphanumeric(Constants.MAX_LOCATION_DESCRIPTION_LENGTH + 10));
         mappedDomain = ObjectMapper.getInstance().mapDtoToDomain(dto);
         Assertions.assertEquals(dto.getDescription().substring(0, Constants.MAX_LOCATION_DESCRIPTION_LENGTH), mappedDomain.getDescription());
+    }
+
+    @Test
+    void testMapPersonDomainToDto() {
+        Person domain = TestHelper.createPerson();
+        PersonDto dto = ObjectMapper.getInstance().mapDomainToDto(domain);
+        Assertions.assertEquals(domain.getId(), dto.getId());
+        Assertions.assertEquals(domain.getName(), dto.getName());
+        Assertions.assertEquals(domain.getAffiliation(), dto.getAffiliation());
+    }
+
+    @Test
+    void testMapLocationDomainToDto() {
+        Location domain = TestHelper.createLocation();
+        LocationDto dto = ObjectMapper.getInstance().mapDomainToDto(domain);
+        Assertions.assertEquals(domain.getId(), dto.getId());
+        Assertions.assertEquals(domain.getName(), dto.getName());
+        Assertions.assertEquals(domain.getDescription(), dto.getDescription());
     }
 
 }

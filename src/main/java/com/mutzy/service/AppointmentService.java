@@ -1,20 +1,24 @@
 package com.mutzy.service;
 
 import com.mutzy.dao.AppointmentDao;
+import com.mutzy.dao.LocationDao;
+import com.mutzy.dao.PersonDao;
 import com.mutzy.domain.Appointment;
+import com.mutzy.domain.Location;
+import com.mutzy.domain.Person;
 import com.mutzy.dto.AppointmentDto;
+import com.mutzy.dto.LocationDto;
+import com.mutzy.dto.PersonDto;
+import com.mutzy.utils.ObjectMapper;
+import com.mutzy.utils.ValidationUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.compare.ObjectToStringComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.validation.ValidationException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -22,25 +26,44 @@ import java.util.List;
 public class AppointmentService {
 
     private final AppointmentDao appointmentDao;
-    private static final AppointmentComparator comparator = new AppointmentComparator();
+    private final PersonDao personDao;
+    private final LocationDao locationDao;
+    private final ValidationUtils validationUtils;
 
-    private final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    private final DateFormat timeFormat = new SimpleDateFormat("HH:mm");
-    private final DateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-
-    private static final int MAX_DESCRIPTION_LENGTH = 1024;
+    private static final AppointmentComparator appointmentComparator = new AppointmentComparator();
+    private static final PersonComparator personComparator = new PersonComparator();
+    private static final LocationComparator locationComparator = new LocationComparator();
 
     @Autowired
-    public AppointmentService(AppointmentDao appointmentDao) {
+    public AppointmentService(AppointmentDao appointmentDao, PersonDao personDao, LocationDao locationDao, ValidationUtils validationUtils) {
         this.appointmentDao = appointmentDao;
+        this.personDao = personDao;
+        this.locationDao = locationDao;
+        this.validationUtils = validationUtils;
     }
 
-    public List<Appointment> getAllAppointmentsByDate() {
+    public List<Appointment> findAllAppointments() {
         List<Appointment> appointments = new ArrayList<>();
         Iterable<Appointment> results = appointmentDao.findAll();
         results.forEach(appointments::add);
-        appointments.sort(comparator);
+        appointments.sort(appointmentComparator);
         return appointments;
+    }
+
+    public List<Person> findAllPeople() {
+        List<Person> people = new ArrayList<>();
+        Iterable<Person> results = personDao.findAll();
+        results.forEach(people::add);
+        people.sort(personComparator);
+        return people;
+    }
+
+    public List<Location> findAllLocations() {
+        List<Location> locations = new ArrayList<>();
+        Iterable<Location> results = locationDao.findAll();
+        results.forEach(locations::add);
+        locations.sort(locationComparator);
+        return locations;
     }
 
     /**
@@ -50,102 +73,82 @@ public class AppointmentService {
      * @return The created Appointment object
      */
     public Appointment createAppointment(AppointmentDto appointmentDto) throws ValidationException {
-        validateAppointmentDto(appointmentDto);
+        validationUtils.validateAppointmentDto(appointmentDto);
         try {
-          Appointment appointment = mapDtoToDomain(appointmentDto);
+          Appointment appointment = ObjectMapper.getInstance().mapDtoToDomain(appointmentDto);
           return appointmentDao.save(appointment);
         } catch (Exception e) {
-            log.error("An unexpected exception occurred", e);
+            log.error("An unexpected exception occurred creating an appointment", e);
             return null;
         }
     }
 
-    private void validateAppointmentDto(AppointmentDto dto) throws ValidationException {
-        if (dto == null) {
-            throw new ValidationException("Cannot save a blank appointment");
-        }
-        validateDescription(dto.getDescription());
-        validateDate(dto.getDate());
-        validateTime(dto.getTime());
-        validatePersonId(dto.getPersonId());
-        validateLocationId(dto.getLocationId());
-    }
-
-    private void validateDescription(String description) throws ValidationException {
-        if (StringUtils.isEmpty(description)) {
-            throw new ValidationException("Appointment description cannot be empty");
-        } else if (!StringUtils.isAlphanumericSpace(description)) {
-            throw new ValidationException("Appointment description can only contain letters and/or numbers");
-        }
-        if (description.length() > MAX_DESCRIPTION_LENGTH) {
-            log.warn("Users are entering long descriptions with character count {}. Consider updating the database field size", description.length());
-        }
-    }
-
-    private void validateDate(String date) throws ValidationException {
-        if (StringUtils.isEmpty(date)) {
-            throw new ValidationException("Appointment date cannot be empty");
-        }
+    public Person createPerson(PersonDto personDto) throws ValidationException {
+        validationUtils.validatePersonDto(personDto);
         try {
-            // just check if we are able to successfully parse the date
-            dateFormat.parse(date);
-        } catch (ParseException e) {
-            throw new ValidationException("Invalid date format");
+            Person person = ObjectMapper.getInstance().mapDtoToDomain(personDto);
+            return personDao.save(person);
+        } catch (Exception e) {
+            log.error("An unexpected exception occurred creating a person", e);
+            return null;
         }
     }
 
-    private void validateTime(String time) throws ValidationException {
-        if (StringUtils.isEmpty(time)) {
-            throw new ValidationException("Appointment date cannot be empty");
-        }
+    public Location createLocation(LocationDto locationDto) throws ValidationException {
+        validationUtils.validateLocationDto(locationDto);
         try {
-            // just check if we are able to successfully parse the time
-            timeFormat.parse(time);
-        } catch (ParseException e) {
-            throw new ValidationException("Invalid date format");
-        }
-    }
-
-    private void validatePersonId(Integer personId) throws ValidationException {
-        //TODO
-    }
-
-    private void validateLocationId(Integer locationId) throws ValidationException {
-        //TODO
-    }
-
-    public Appointment mapDtoToDomain(AppointmentDto dto) {
-        Appointment appointment = new Appointment();
-        try {
-            log.info("CONNOR: dto {}", dto);
-            appointment.setPersonId(dto.getPersonId());
-            appointment.setLocationId(dto.getLocationId());
-            appointment.setDescription(dto.getDescription().length() > MAX_DESCRIPTION_LENGTH ?
-                    dto.getDescription().substring(0, MAX_DESCRIPTION_LENGTH) :
-                    dto.getDescription());
-            appointment.setDate(dateTimeFormat.parse(String.format("%s %s", dto.getDate(), dto.getTime())));
-            return appointment;
-        } catch (ParseException e) {
-            log.warn("Failed to parse given date", e);
-            return appointment;
+            Location location = ObjectMapper.getInstance().mapDtoToDomain(locationDto);
+            return locationDao.save(location);
+        } catch (Exception e) {
+            log.error("An unexpected exception occurred creating a location", e);
+            return null;
         }
     }
 
     private static class AppointmentComparator implements Comparator<Appointment> {
-
         @Override
         public int compare(Appointment a1, Appointment a2) {
             int comparedDates = a1.getDate().compareTo(a2.getDate());
-            if (comparedDates == 0) {
-                // use the object ids to break any ties caused by the same date
-                return a1.getId().compareTo(a2.getId());
-            }
-            return comparedDates;
+            return comparedDates == 0 ?
+                    a1.getId().compareTo(a2.getId()) : // use the object ids to break any ties caused by the same date
+                    comparedDates;
         }
 
         @Override
         public boolean equals(Object obj) {
             return obj instanceof AppointmentComparator;
+        }
+    }
+
+    private static class PersonComparator implements Comparator<Person> {
+        @Override
+        public int compare(Person p1, Person p2) {
+            ObjectToStringComparator comparator = new ObjectToStringComparator();
+            int nameComparison = comparator.compare(p1.getName(), p2.getName());
+            return nameComparison == 0 ?
+                    p1.getId().compareTo(p2.getId()) : // use the object ids to break any ties caused by the same name
+                    nameComparison;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof PersonComparator;
+        }
+    }
+
+    private static class LocationComparator implements Comparator<Location> {
+        @Override
+        public int compare(Location l1, Location l2) {
+            ObjectToStringComparator comparator = new ObjectToStringComparator();
+            int nameComparison = comparator.compare(l1.getName(), l2.getName());
+            return nameComparison == 0 ?
+                    l1.getId().compareTo(l2.getId()) : // use the object ids to break any ties caused by the same name
+                    nameComparison;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof LocationComparator;
         }
     }
 

@@ -5,68 +5,148 @@
 
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<div class="container">
-    <div class="row">
-        <div class="col-sm-12">
-            <h4>Appointments</h4>
-            <div class="panel panel-default">
-                <table class="table table-striped table-hover">
-                    <thead>
-                    <tr>
-                        <th>Description</th>
-                        <th>Date</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="appointment : ${appointments}">
-                        <td th:text="${appointment.description}"></td>
-                        <td th:text="${#dates.format(appointment.date, 'dd/MM/yyyy hh:mm a')}"></td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-sm-12">
-            <h4>Create appointment</h4>
-            <div th:if="${validationError != ''}">
-                <div th:text="${validationError}"></div>
-            </div>
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <form class="form-horizontal" method="post" th:action="@{/appointments}" th:object="${appointment}">
-                        <div class="form-group">
-                            <label for="date" class="col-sm-3 control-label">Date</label>
-                            <div class="col-sm-9">
-                                <input type="date" class="form-control" id="date" name="date" th:field="*{date}">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="time" class="col-sm-3 control-label">Time</label>
-                            <div class="col-sm-9">
-                                <input type="time" class="form-control" id="time" name="time" th:field="*{time}">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="description" class="col-sm-3 control-label">Description</label>
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control" id="description" name="description" th:field="*{description}">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-sm-12 text-right">
-                                <button type="button" class="btn btn-default preview-add-button" onclick="">
-                                    <input type="submit" class="glyphicon glyphicon-plus" value="Create">
-                                </button>
-                            </div>
-                        </div>
-                    </form>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <h4>Appointments</h4>
+                <div class="panel panel-default">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Date</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="appointment : ${appointments}">
+                            <td th:text="${appointment.description}"></td>
+                            <td th:text="${#dates.format(appointment.date, 'dd/MM/yyyy hh:mm a')}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <h4>Create appointment</h4>
+                <div th:if="${appointmentValidationError != ''}">
+                    <div th:text="${appointmentValidationError}"></div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <form class="form-horizontal" method="post" th:action="@{/appointments}" th:object="${appointment}">
+                            <div class="form-group">
+                                <label for="date" class="col-sm-3 control-label">Date</label>
+                                <div class="col-sm-9">
+                                    <input type="date" class="form-control" id="date" name="date" th:field="*{date}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="time" class="col-sm-3 control-label">Time</label>
+                                <div class="col-sm-9">
+                                    <input type="time" class="form-control" id="time" name="time" th:field="*{time}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="description" class="col-sm-3 control-label">Description</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="description" name="description" th:field="*{description}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="applicationPerson" class="col-sm-3 control-label">Person</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control" id="applicationPerson" name="person" th:field="*{personId}">
+                                        <option value="null" selected></option>
+                                        <option th:each="person : ${people}" th:value="${person.id}" th:text="${person.name + person.affiliation}"></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="applicationLocation" class="col-sm-3 control-label">Location</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control" id="applicationLocation" name="location" th:field="*{locationId}">
+                                        <option value="null" selected></option>
+                                        <option th:each="location : ${locations}" th:value="${location.id}" th:text="${location.name}"></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 text-right">
+                                <button type="submit" class="btn btn-default preview-add-button" onclick="">Create</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <table class="table">
+            <tbody>
+            <tr>
+            <td>
+                <div>
+                    <h4>Add new Person</h4>
+                    <div th:if="${personValidationError != ''}">
+                        <div th:text="${personValidationError}"></div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <form class="form-horizontal" method="post" th:action="@{/appointments/person}" th:object="${person}">
+                                <div class="form-group">
+                                    <label for="personName" class="col-sm-3 control-label">Name</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="personName" name="name" th:field="*{name}">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="personAffiliation" class="col-sm-3 control-label">Affiliation</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="personAffiliation" name="affiliation" th:field="*{affiliation}">
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-right">
+                                    <button type="submit" class="btn btn-default preview-add-button" onclick="">Create</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div>
+                    <h4>Add new Location</h4>
+                    <div th:if="${locationValidationError != ''}">
+                        <div th:text="${locationValidationError}"></div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <form class="form-horizontal" method="post" th:action="@{/appointments/location}" th:object="${location}">
+                                <div class="form-group">
+                                    <label for="locationName" class="col-sm-3 control-label">Name</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="locationName" name="location" th:field="*{name}">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="locationDescription" class="col-sm-3 control-label">Description</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="locationDescription" name="description" th:field="*{description}">
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-right">
+                                    <button type="submit" class="btn btn-default preview-add-button" onclick="">Create</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </td>
+            </tr>
+            </tbody>
+        </table>
     </div>
-</div>
 </body>
 </html>

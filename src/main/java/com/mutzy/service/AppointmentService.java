@@ -87,8 +87,13 @@ public class AppointmentService {
         }
     }
 
+    public void deleteAppointment(Integer appointmentId) {
+        appointmentDao.deleteById(appointmentId);
+    }
+
     private AppointmentResponseDto mapAppointmentToResponseDto(Appointment appointment) {
         AppointmentResponseDto dto = new AppointmentResponseDto();
+        dto.setId(appointment.getId());
         dto.setDate(appointment.getDate());
         dto.setDescription(appointment.getDescription());
         if (appointment.getPersonId() != null) {

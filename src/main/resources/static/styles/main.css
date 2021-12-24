@@ -1,0 +1,35 @@
+.appointment-table {
+  table-layout: fixed;
+}
+
+h4 {
+  font-weight: bold;
+}
+
+.description-text {
+  float: left;
+}
+
+.delete-button-form {
+  float: right;
+  margin-right: 10%;
+}
+
+.delete-button:hover {
+  border: 1px solid gray;
+  background: lightgray;
+}
+
+#person-form-container {
+  padding-left: 0;
+}
+
+#location-form-container {
+  padding-right: 0;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}

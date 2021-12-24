@@ -4,6 +4,7 @@
     <title>Appointment Tracker</title>
 
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/styles/main.css}" rel="stylesheet" />
 </head>
 <body>
     <div class="container">
@@ -11,21 +12,26 @@
             <div class="col-sm-12">
                 <h4>Appointments</h4>
                 <div class="panel panel-default">
-                    <table class="table table-striped table-hover">
+                    <table class="table table-striped table-hover appointment-table">
                         <thead>
                         <tr>
-                            <th>Description</th>
-                            <th>Date</th>
-                            <th>With Who</th>
-                            <th>Where</th>
+                            <th class="appointment-table-description">Description</th>
+                            <th class="appointment-table-date">Date</th>
+                            <th class="appointment-table-person">With Who</th>
+                            <th class="appointment-table-location">Where</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr th:each="appointment : ${appointments}">
                             <td th:text="${appointment.description}"></td>
                             <td th:text="${#dates.format(appointment.date, 'dd/MM/yyyy hh:mm a')}"></td>
-                            <td th:text="${appointment.person?.name}"></td>
-                            <td th:text="${appointment.location?.name}"></td>
+                            <td th:text="${appointment.person?.name + ' ' + appointment.person?.affiliation}" class="appointmentPersonName"></td>
+                            <td>
+                                <p class="description-text" th:text="${appointment.location?.name + ' ' + appointment.location?.description}"></p>
+                                <form class="delete-button-form" th:action="@{/appointments/} + ${appointment.id}" th:method="post"> <!-- Change to Delete -->
+                                    <button class="btn btn-secondary preview-add-button delete-button" type="submit">Delete</button>
+                                </form>
+                            </td>
                         </tr>
                         </tbody>
                     </table>
@@ -35,9 +41,9 @@
 
         <div class="row">
             <div class="col-sm-12">
-                <h4>Create appointment</h4>
+                <h4>Create Appointment</h4>
                 <div th:if="${appointmentValidationError != ''}">
-                    <div th:text="${appointmentValidationError}"></div>
+                    <div class="error" th:text="${appointmentValidationError}"></div>
                 </div>
                 <div class="panel panel-default">
                     <div class="panel-body">
@@ -78,8 +84,8 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-sm-12 text-right">
-                                <button type="submit" class="btn btn-default preview-add-button" onclick="">Create</button>
+                            <div class="text-right">
+                                <button type="submit" class="btn btn-primary preview-add-button" onclick="">Create</button>
                             </div>
                         </form>
                     </div>
@@ -90,11 +96,11 @@
         <table class="table">
             <tbody>
             <tr>
-            <td>
+            <td id="person-form-container">
                 <div>
                     <h4>Create new Person</h4>
                     <div th:if="${personValidationError != ''}">
-                        <div th:text="${personValidationError}"></div>
+                        <div class="error" th:text="${personValidationError}"></div>
                     </div>
                     <div class="panel panel-default">
                         <div class="panel-body">
@@ -111,19 +117,19 @@
                                         <input type="text" class="form-control" id="personAffiliation" name="affiliation" th:field="*{affiliation}">
                                     </div>
                                 </div>
-                                <div class="col-sm-12 text-right">
-                                    <button type="submit" class="btn btn-default preview-add-button" onclick="">Create</button>
+                                <div class="text-right">
+                                    <button type="submit" class="btn btn-primary preview-add-button" onclick="">Create</button>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
             </td>
-            <td>
+            <td id="location-form-container">
                 <div>
                     <h4>Create new Location</h4>
                     <div th:if="${locationValidationError != ''}">
-                        <div th:text="${locationValidationError}"></div>
+                        <div class="error" th:text="${locationValidationError}"></div>
                     </div>
                     <div class="panel panel-default">
                         <div class="panel-body">
@@ -140,8 +146,8 @@
                                         <input type="text" class="form-control" id="locationDescription" name="description" th:field="*{description}">
                                     </div>
                                 </div>
-                                <div class="col-sm-12 text-right">
-                                    <button type="submit" class="btn btn-default preview-add-button" onclick="">Create</button>
+                                <div class="text-right">
+                                    <button type="submit" class="btn btn-primary preview-add-button" onclick="">Create</button>
                                 </div>
                             </form>
                         </div>

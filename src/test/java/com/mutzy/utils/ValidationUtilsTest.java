@@ -36,12 +36,19 @@ class ValidationUtilsTest {
     }
 
     @Test
+    void testAppointmentDto_WithSelectSpecialCharacters() {
+        AppointmentRequestDto dto = TestHelper.createAppointmentDto();
+        dto.setDescription("String, with all. valid? characters --!_");
+        Assertions.assertDoesNotThrow(() -> validationUtils.validateAppointmentDto(dto));
+    }
+
+    @Test
     void testNullAppointmentDto() {
         helpTestAppointmentValidationDto(null);
     }
 
     @Test
-    void testInvalidAppointmentDto_InvalidDescription() { //TODO allow punctuation
+    void testInvalidAppointmentDto_InvalidDescription() {
         AppointmentRequestDto dto = TestHelper.createAppointmentDto();
         dto.setDescription("");
         helpTestAppointmentValidationDto(dto);
@@ -49,7 +56,7 @@ class ValidationUtilsTest {
         dto.setDescription(null);
         helpTestAppointmentValidationDto(dto);
 
-        dto.setDescription("Mostly valid %##() String with ^^! non-alphanumeric characters");
+        dto.setDescription("Mostly valid %##() String with ^^* some invalid characters");
         helpTestAppointmentValidationDto(dto);
     }
 
@@ -109,12 +116,20 @@ class ValidationUtilsTest {
     }
 
     @Test
+    void testPersonDto_WithSelectSpecialCharacters() {
+        PersonDto dto = TestHelper.createPersonDto();
+        dto.setName("String, with all. valid? characters --!_");
+        dto.setAffiliation("String, with all. valid? characters --!_");
+        Assertions.assertDoesNotThrow(() -> validationUtils.validatePersonDto(dto));
+    }
+
+    @Test
     void testNullPersonDto() {
         helpTestPersonValidationDto(null);
     }
 
     @Test
-    void testInvalidPersonDto_InvalidName() { //TODO allow punctuation
+    void testInvalidPersonDto_InvalidName() {
         PersonDto dto = TestHelper.createPersonDto();
         dto.setName("");
         helpTestPersonValidationDto(dto);
@@ -122,12 +137,12 @@ class ValidationUtilsTest {
         dto.setName(null);
         helpTestPersonValidationDto(dto);
 
-        dto.setName("Mostly valid %##() String with ^^! non-alphanumeric characters");
+        dto.setName("Mostly valid %##() String with ^^* some invalid characters");
         helpTestPersonValidationDto(dto);
     }
 
     @Test
-    void testInvalidPersonDto_InvalidAffiliation() { //TODO allow punctuation
+    void testInvalidPersonDto_InvalidAffiliation() {
         PersonDto dto = TestHelper.createPersonDto();
         dto.setAffiliation("");
         helpTestPersonValidationDto(dto);
@@ -135,7 +150,7 @@ class ValidationUtilsTest {
         dto.setAffiliation(null);
         helpTestPersonValidationDto(dto);
 
-        dto.setAffiliation("Mostly valid %##() String with ^^! non-alphanumeric characters");
+        dto.setAffiliation("Mostly valid %##() String with ^^* some invalid characters");
         helpTestPersonValidationDto(dto);
     }
 
@@ -145,12 +160,20 @@ class ValidationUtilsTest {
     }
 
     @Test
+    void testLocationDto_WithSelectSpecialCharacters() {
+        LocationDto dto = TestHelper.createLocationDto();
+        dto.setName("String, with all. valid? characters --!_");
+        dto.setDescription("String, with all. valid? characters --!_");
+        Assertions.assertDoesNotThrow(() -> validationUtils.validateLocationDto(dto));
+    }
+
+    @Test
     void testNullLocationDto() {
         helpTestLocationValidationDto(null);
     }
 
     @Test
-    void testInvalidLocationDto_InvalidName() { //TODO allow punctuation
+    void testInvalidLocationDto_InvalidName() {
         LocationDto dto = TestHelper.createLocationDto();
         dto.setName("");
         helpTestLocationValidationDto(dto);
@@ -158,12 +181,12 @@ class ValidationUtilsTest {
         dto.setName(null);
         helpTestLocationValidationDto(dto);
 
-        dto.setName("Mostly valid %##() String with ^^! non-alphanumeric characters");
+        dto.setName("Mostly valid %##() String with ^^* some invalid characters");
         helpTestLocationValidationDto(dto);
     }
 
     @Test
-    void testInvalidLocationDto_InvalidAffiliation() { //TODO allow punctuation
+    void testInvalidLocationDto_InvalidAffiliation() {
         LocationDto dto = TestHelper.createLocationDto();
         dto.setDescription("");
         helpTestLocationValidationDto(dto);
@@ -171,7 +194,7 @@ class ValidationUtilsTest {
         dto.setDescription(null);
         helpTestLocationValidationDto(dto);
 
-        dto.setDescription("Mostly valid %##() String with ^^! non-alphanumeric characters");
+        dto.setDescription("Mostly valid %##() String with ^^* some invalid characters");
         helpTestLocationValidationDto(dto);
     }
 

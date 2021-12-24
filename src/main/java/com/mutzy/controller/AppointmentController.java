@@ -53,6 +53,10 @@ public class AppointmentController {
     @PostMapping
     public String createAppointment(@ModelAttribute AppointmentRequestDto appointment, BindingResult bindingResult, Model model) {
         try {
+            if (bindingResult.hasErrors()) {
+                log.error("Issue with create appointment request {}", bindingResult.getAllErrors());
+                return reportAppointmentFormFailureToUser("There was an invalid value on the given appointment", model, appointment);
+            }
             AppointmentResponseDto createdAppointment = appointmentService.createAppointment(appointment);
             if (createdAppointment == null) {
                 return reportAppointmentFormFailureToUser("An unknown error occurred. Please reach out to support if the issue persists", model, appointment);
@@ -81,6 +85,10 @@ public class AppointmentController {
     @PostMapping("/person")
     public String createPerson(@ModelAttribute PersonDto personDto, BindingResult bindingResult, Model model) {
         try {
+            if (bindingResult.hasErrors()) {
+                log.error("Issue with create person request {}", bindingResult.getAllErrors());
+                return reportPersonFormFailureToUser("There was an invalid value on the given person", model, personDto);
+            }
             Person createdPerson = appointmentService.createPerson(personDto);
             if (createdPerson == null) {
                 return reportPersonFormFailureToUser("An unknown error occurred. Please reach out to support if the issue persists", model, personDto);
@@ -95,6 +103,10 @@ public class AppointmentController {
     @PostMapping("/location")
     public String createLocation(@ModelAttribute LocationDto locationDto, BindingResult bindingResult, Model model) {
         try {
+            if (bindingResult.hasErrors()) {
+                log.error("Issue with create location request {}", bindingResult.getAllErrors());
+                return reportLocationFormFailureToUser("There was an invalid value on the given location", model, locationDto);
+            }
             Location createdLocation = appointmentService.createLocation(locationDto);
             if (createdLocation == null) {
                 return reportLocationFormFailureToUser("An unknown error occurred. Please reach out to support if the issue persists", model, locationDto);

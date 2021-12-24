@@ -16,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 
 import javax.validation.ValidationException;
 import java.util.Collections;
@@ -27,7 +29,10 @@ class AppointmentControllerTest {
 
     private final AppointmentService mockAppointmentService = Mockito.mock(AppointmentService.class);
     private final AppointmentController controller = new AppointmentController(mockAppointmentService);
+
     private Model model = new ExtendedModelMap();
+    private final BindingResult validBindingResult = Mockito.mock(BindingResult.class);
+    private final BindingResult invalidBindingResult = Mockito.mock(BindingResult.class);
 
     @BeforeEach
     void setUpCommonMocks() {
@@ -39,6 +44,10 @@ class AppointmentControllerTest {
 
         List<Location> locations = Collections.singletonList(TestHelper.createLocation());
         Mockito.when(mockAppointmentService.findAllLocations()).thenReturn(locations);
+
+        Mockito.when(validBindingResult.hasErrors()).thenReturn(false);
+        Mockito.when(invalidBindingResult.hasErrors()).thenReturn(true);
+        Mockito.when(invalidBindingResult.getAllErrors()).thenReturn(Collections.singletonList(new ObjectError("objectName", "some message")));
     }
 
     @AfterEach
@@ -84,7 +93,7 @@ class AppointmentControllerTest {
         model.addAttribute("appointments", initialAppointments);
         Mockito.when(mockAppointmentService.createAppointment(any())).thenReturn(expectedAppointment);
         Mockito.when(mockAppointmentService.findAllAppointments()).thenReturn(allAppointments);
-        String view = controller.createAppointment(TestHelper.createAppointmentDto(), null, model);
+        String view = controller.createAppointment(TestHelper.createAppointmentDto(), validBindingResult, model);
 
         Assertions.assertEquals(AppointmentController.APPOINTMENTS_VIEW, view);
         Object modelAppointments = model.getAttribute("appointments");
@@ -107,7 +116,7 @@ class AppointmentControllerTest {
         Mockito.when(mockAppointmentService.createAppointment(any())).thenThrow(exception);
         Mockito.when(mockAppointmentService.findAllAppointments()).thenReturn(initialAppointments);
 
-        String view = controller.createAppointment(dto, null, model);
+        String view = controller.createAppointment(dto, validBindingResult, model);
         checkAppointmentValidationFields(view, initialAppointments, dto);
     }
 
@@ -120,8 +129,21 @@ class AppointmentControllerTest {
         Mockito.when(mockAppointmentService.createAppointment(any())).thenReturn(null);
         Mockito.when(mockAppointmentService.findAllAppointments()).thenReturn(initialAppointments);
 
-        String view = controller.createAppointment(dto, null, model);
+        String view = controller.createAppointment(dto, validBindingResult, model);
         checkAppointmentValidationFields(view, initialAppointments, dto);
+    }
+
+    @Test
+    void testCreateAppointment_WithBindingError_ShouldDisplayErrorToUser() {
+        List<AppointmentResponseDto> initialAppointments = TestHelper.createAppointmentResponseList(2);
+        AppointmentRequestDto dto = TestHelper.createAppointmentDto();
+
+        model.addAttribute("appointments", initialAppointments);
+        Mockito.when(mockAppointmentService.findAllAppointments()).thenReturn(initialAppointments);
+
+        String view = controller.createAppointment(dto, invalidBindingResult, model);
+        checkAppointmentValidationFields(view, initialAppointments, dto);
+        Mockito.verify(mockAppointmentService, Mockito.never()).createAppointment(any());
     }
 
     @Test
@@ -149,6 +171,7 @@ class AppointmentControllerTest {
         checkPeopleArePopulated();
         checkLocationsArePopulated();
     }
+
     @Test
     void testCreatePerson_WhenRequestIsValid_ShouldCreatePersonAndUpdateModel() {
         int initialSize = 3;
@@ -160,7 +183,7 @@ class AppointmentControllerTest {
         model.addAttribute("people", initialPeople);
         Mockito.when(mockAppointmentService.createPerson(any())).thenReturn(expectedPerson);
         Mockito.when(mockAppointmentService.findAllPeople()).thenReturn(allPeople);
-        String view = controller.createPerson(TestHelper.createPersonDto(), null, model);
+        String view = controller.createPerson(TestHelper.createPersonDto(), validBindingResult, model);
 
         Assertions.assertEquals(AppointmentController.APPOINTMENTS_VIEW, view);
         Object modelPeople = model.getAttribute("people");
@@ -183,7 +206,7 @@ class AppointmentControllerTest {
         Mockito.when(mockAppointmentService.createPerson(any())).thenThrow(exception);
         Mockito.when(mockAppointmentService.findAllPeople()).thenReturn(initialPeople);
 
-        String view = controller.createPerson(dto, null, model);
+        String view = controller.createPerson(dto, validBindingResult, model);
         checkPeopleValidationFields(view, initialPeople, dto);
     }
 
@@ -193,11 +216,24 @@ class AppointmentControllerTest {
         PersonDto dto = TestHelper.createPersonDto();
 
         model.addAttribute("people", initialPeople);
-        Mockito.when(mockAppointmentService.createAppointment(any())).thenReturn(null);
+        Mockito.when(mockAppointmentService.createPerson(any())).thenReturn(null);
         Mockito.when(mockAppointmentService.findAllPeople()).thenReturn(initialPeople);
 
-        String view = controller.createPerson(dto, null, model);
+        String view = controller.createPerson(dto, validBindingResult, model);
         checkPeopleValidationFields(view, initialPeople, dto);
+    }
+
+    @Test
+    void testCreatePerson_WithBindingError_ShouldDisplayErrorToUser() {
+        List<Person> initialPeople = TestHelper.createPersonList(2);
+        PersonDto dto = TestHelper.createPersonDto();
+
+        model.addAttribute("people", initialPeople);
+        Mockito.when(mockAppointmentService.findAllPeople()).thenReturn(initialPeople);
+
+        String view = controller.createPerson(dto, invalidBindingResult, model);
+        checkPeopleValidationFields(view, initialPeople, dto);
+        Mockito.verify(mockAppointmentService, Mockito.never()).createPerson(any());
     }
 
     @Test
@@ -211,7 +247,7 @@ class AppointmentControllerTest {
         model.addAttribute("locations", initialLocations);
         Mockito.when(mockAppointmentService.createLocation(any())).thenReturn(expectedLocation);
         Mockito.when(mockAppointmentService.findAllLocations()).thenReturn(allLocations);
-        String view = controller.createLocation(TestHelper.createLocationDto(), null, model);
+        String view = controller.createLocation(TestHelper.createLocationDto(), validBindingResult, model);
 
         Assertions.assertEquals(AppointmentController.APPOINTMENTS_VIEW, view);
         Object modelLocations = model.getAttribute("locations");
@@ -234,7 +270,7 @@ class AppointmentControllerTest {
         Mockito.when(mockAppointmentService.createLocation(any())).thenThrow(exception);
         Mockito.when(mockAppointmentService.findAllLocations()).thenReturn(initialLocations);
 
-        String view = controller.createLocation(dto, null, model);
+        String view = controller.createLocation(dto, validBindingResult, model);
         checkLocationValidationFields(view, initialLocations, dto);
     }
 
@@ -247,8 +283,21 @@ class AppointmentControllerTest {
         Mockito.when(mockAppointmentService.createLocation(any())).thenReturn(null);
         Mockito.when(mockAppointmentService.findAllLocations()).thenReturn(initialLocations);
 
-        String view = controller.createLocation(dto, null, model);
+        String view = controller.createLocation(dto, validBindingResult, model);
         checkLocationValidationFields(view, initialLocations, dto);
+    }
+
+    @Test
+    void testCreateLocation_WithBindingError_ShouldDisplayErrorToUser() {
+        List<Location> initialLocations = TestHelper.createLocationList(2);
+        LocationDto dto = TestHelper.createLocationDto();
+
+        model.addAttribute("locations", initialLocations);
+        Mockito.when(mockAppointmentService.findAllLocations()).thenReturn(initialLocations);
+
+        String view = controller.createLocation(dto, invalidBindingResult, model);
+        checkLocationValidationFields(view, initialLocations, dto);
+        Mockito.verify(mockAppointmentService, Mockito.never()).createLocation(any());
     }
 
     private void checkAppointmentValidationFields(String view, List<AppointmentResponseDto> initialAppointments, AppointmentRequestDto dto) {

@@ -9,6 +9,7 @@ import com.mutzy.dto.AppointmentResponseDto;
 import com.mutzy.dto.LocationDto;
 import com.mutzy.dto.PersonDto;
 import com.mutzy.service.AppointmentService;
+import com.mutzy.utils.Constants;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +29,8 @@ import static org.mockito.ArgumentMatchers.any;
 class AppointmentControllerTest {
 
     private final AppointmentService mockAppointmentService = Mockito.mock(AppointmentService.class);
-    private final AppointmentController controller = new AppointmentController(mockAppointmentService);
+    private final ControllerHelper controllerHelper = new ControllerHelper(mockAppointmentService);
+    private final AppointmentController controller = new AppointmentController(mockAppointmentService, controllerHelper);
 
     private Model model = new ExtendedModelMap();
     private final BindingResult validBindingResult = Mockito.mock(BindingResult.class);
@@ -64,7 +66,7 @@ class AppointmentControllerTest {
         Object modelAppointments = model.getAttribute("appointments");
         Assertions.assertTrue(modelAppointments instanceof List);
         Assertions.assertTrue(((List<?>) modelAppointments).isEmpty());
-        Assertions.assertEquals(AppointmentController.APPOINTMENTS_VIEW, view);
+        Assertions.assertEquals(Constants.APPOINTMENTS_PAGE, view);
 
         checkRequiredFieldsOnModel();
         checkPeopleArePopulated();
@@ -75,7 +77,7 @@ class AppointmentControllerTest {
     void testGetAppointments_ShouldShowAllReturnedAppointments() {
         String view = controller.getAppointments(model);
 
-        Assertions.assertEquals(AppointmentController.APPOINTMENTS_VIEW, view);
+        Assertions.assertEquals(Constants.APPOINTMENTS_PAGE, view);
         checkRequiredFieldsOnModel();
         checkAppointmentsArePopulated();
         checkPeopleArePopulated();
@@ -95,7 +97,7 @@ class AppointmentControllerTest {
         Mockito.when(mockAppointmentService.findAllAppointments()).thenReturn(allAppointments);
         String view = controller.createAppointment(TestHelper.createAppointmentDto(), validBindingResult, model);
 
-        Assertions.assertEquals(AppointmentController.APPOINTMENTS_VIEW, view);
+        Assertions.assertEquals(Constants.APPOINTMENTS_PAGE, view);
         Object modelAppointments = model.getAttribute("appointments");
         Assertions.assertTrue(modelAppointments instanceof List);
         Assertions.assertEquals(initialSize + 1, ((List<?>) modelAppointments).size());
@@ -152,7 +154,7 @@ class AppointmentControllerTest {
         String view = controller.deleteAppointment(appointmentId, model);
 
         Mockito.verify(mockAppointmentService).deleteAppointment(appointmentId);
-        Assertions.assertEquals(AppointmentController.APPOINTMENTS_VIEW, view);
+        Assertions.assertEquals(Constants.APPOINTMENTS_PAGE, view);
         checkRequiredFieldsOnModel();
         checkAppointmentsArePopulated();
         checkPeopleArePopulated();
@@ -165,7 +167,7 @@ class AppointmentControllerTest {
         Mockito.doThrow(new ValidationException("some error")).when(mockAppointmentService).deleteAppointment(appointmentId);
         String view = controller.deleteAppointment(appointmentId, model);
 
-        Assertions.assertEquals(AppointmentController.APPOINTMENTS_VIEW, view);
+        Assertions.assertEquals(Constants.APPOINTMENTS_PAGE, view);
         checkRequiredFieldsOnModel();
         checkAppointmentsArePopulated();
         checkPeopleArePopulated();
@@ -185,7 +187,7 @@ class AppointmentControllerTest {
         Mockito.when(mockAppointmentService.findAllPeople()).thenReturn(allPeople);
         String view = controller.createPerson(TestHelper.createPersonDto(), validBindingResult, model);
 
-        Assertions.assertEquals(AppointmentController.APPOINTMENTS_VIEW, view);
+        Assertions.assertEquals(Constants.APPOINTMENTS_PAGE, view);
         Object modelPeople = model.getAttribute("people");
         Assertions.assertTrue(modelPeople instanceof List);
         Assertions.assertEquals(initialSize + 1, ((List<?>) modelPeople).size());
@@ -249,7 +251,7 @@ class AppointmentControllerTest {
         Mockito.when(mockAppointmentService.findAllLocations()).thenReturn(allLocations);
         String view = controller.createLocation(TestHelper.createLocationDto(), validBindingResult, model);
 
-        Assertions.assertEquals(AppointmentController.APPOINTMENTS_VIEW, view);
+        Assertions.assertEquals(Constants.APPOINTMENTS_PAGE, view);
         Object modelLocations = model.getAttribute("locations");
         Assertions.assertTrue(modelLocations instanceof List);
         Assertions.assertEquals(initialSize + 1, ((List<?>) modelLocations).size());
@@ -301,7 +303,7 @@ class AppointmentControllerTest {
     }
 
     private void checkAppointmentValidationFields(String view, List<AppointmentResponseDto> initialAppointments, AppointmentRequestDto dto) {
-        Assertions.assertEquals(AppointmentController.APPOINTMENTS_VIEW, view);
+        Assertions.assertEquals(Constants.APPOINTMENTS_PAGE, view);
         Object modelAppointments = model.getAttribute("appointments");
         Assertions.assertTrue(modelAppointments instanceof List);
         Assertions.assertEquals(initialAppointments, modelAppointments); // The list of all appointments should not have changed
@@ -310,7 +312,7 @@ class AppointmentControllerTest {
     }
 
     private void checkPeopleValidationFields(String view, List<Person> initialPeople, PersonDto dto) {
-        Assertions.assertEquals(AppointmentController.APPOINTMENTS_VIEW, view);
+        Assertions.assertEquals(Constants.APPOINTMENTS_PAGE, view);
         Object modelPeople = model.getAttribute("people");
         Assertions.assertTrue(modelPeople instanceof List);
         Assertions.assertEquals(initialPeople, modelPeople); // The list of all people should not have changed
@@ -319,7 +321,7 @@ class AppointmentControllerTest {
     }
 
     private void checkLocationValidationFields(String view, List<Location> initialLocation, LocationDto dto) {
-        Assertions.assertEquals(AppointmentController.APPOINTMENTS_VIEW, view);
+        Assertions.assertEquals(Constants.APPOINTMENTS_PAGE, view);
         Object modelLocations = model.getAttribute("locations");
         Assertions.assertTrue(modelLocations instanceof List);
         Assertions.assertEquals(initialLocation, modelLocations); // The list of all locations should not have changed

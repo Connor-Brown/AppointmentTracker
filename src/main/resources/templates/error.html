@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Appointment Tracker</title>
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/styles/main.css}" rel="stylesheet" />
+</head>
+<body>
+    <div class="container error-page-container">
+        <h3>You seem to have wandered off the path...</h3>
+        <form th:action="@{/appointments}" th:method="get">
+            <button class="btn btn-primary preview-add-button" type="submit">Click here to return home</button>
+        </form>
+    </div>
+</body>
+</html>

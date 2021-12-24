@@ -56,7 +56,7 @@ public class ValidationUtils {
         if (dto == null) {
             throw new ValidationException("Cannot save a blank appointment");
         }
-        validateAlphaNumericPunctuation(dto.getDescription(), "description");
+        validateAlphaNumericPunctuation(dto.getDescription(), APPOINTMENT_DESCRIPTION_FIELD);
         checkDtoFieldSize(dto.getDescription(), Constants.MAX_APPOINTMENT_DESCRIPTION_LENGTH, APPOINTMENT_DESCRIPTION_FIELD);
         validateDate(dto.getDate());
         validateTime(dto.getTime());
@@ -103,7 +103,7 @@ public class ValidationUtils {
     private void validateAlphaNumericPunctuation(String value, String fieldName) throws ValidationException {
         if (StringUtils.isEmpty(value)) {
             throw new ValidationException(fieldName + " cannot be empty");
-        } else if (!StringUtils.isAlphanumericSpace(value)) { //TODO add punctuation validation
+        } else if (!value.matches(Constants.STRING_INPUT_REGEX)) {
             throw new ValidationException("Appointment " + fieldName + " can only contain letters and/or numbers");
         }
     }

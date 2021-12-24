@@ -68,6 +68,16 @@ public class AppointmentController {
         }
     }
 
+    @PostMapping("/{appointmentId}") // This should be a DELETE request
+    public String deleteAppointment(@PathVariable(value = "appointmentId") Integer appointmentId, Model model) {
+        try {
+            appointmentService.deleteAppointment(appointmentId);
+        } catch (Exception e) {
+            log.warn(e.getMessage(), e);
+        }
+        return redirectToAppointmentsPage(model);
+    }
+
     @PostMapping("/person")
     public String createPerson(@ModelAttribute PersonDto personDto, BindingResult bindingResult, Model model) {
         try {

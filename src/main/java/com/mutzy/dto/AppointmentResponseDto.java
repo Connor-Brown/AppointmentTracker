@@ -7,6 +7,7 @@ import java.util.Date;
 
 @Getter @Setter
 public class AppointmentResponseDto {
+    private Integer id;
     private String description;
     private Date date;
     private PersonDto person;

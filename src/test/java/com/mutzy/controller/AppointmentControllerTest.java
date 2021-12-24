@@ -64,16 +64,11 @@ class AppointmentControllerTest {
 
     @Test
     void testGetAppointments_ShouldShowAllReturnedAppointments() {
-        List<AppointmentResponseDto> appointments = TestHelper.createAppointmentResponseList(2);
-        Mockito.when(mockAppointmentService.findAllAppointments()).thenReturn(appointments);
         String view = controller.getAppointments(model);
 
         Assertions.assertEquals(AppointmentController.APPOINTMENTS_VIEW, view);
-        Object modelAppointments = model.getAttribute("appointments");
-        Assertions.assertTrue(modelAppointments instanceof List);
-        Assertions.assertEquals(appointments, modelAppointments);
-
         checkRequiredFieldsOnModel();
+        checkAppointmentsArePopulated();
         checkPeopleArePopulated();
         checkLocationsArePopulated();
     }
@@ -129,6 +124,31 @@ class AppointmentControllerTest {
         checkAppointmentValidationFields(view, initialAppointments, dto);
     }
 
+    @Test
+    void testDeleteAppointment_WithValidId() {
+        Integer appointmentId = 1234;
+        String view = controller.deleteAppointment(appointmentId, model);
+
+        Mockito.verify(mockAppointmentService).deleteAppointment(appointmentId);
+        Assertions.assertEquals(AppointmentController.APPOINTMENTS_VIEW, view);
+        checkRequiredFieldsOnModel();
+        checkAppointmentsArePopulated();
+        checkPeopleArePopulated();
+        checkLocationsArePopulated();
+    }
+
+    @Test
+    void testDeleteAppointment_WithInvalidId() {
+        Integer appointmentId = 1;
+        Mockito.doThrow(new ValidationException("some error")).when(mockAppointmentService).deleteAppointment(appointmentId);
+        String view = controller.deleteAppointment(appointmentId, model);
+
+        Assertions.assertEquals(AppointmentController.APPOINTMENTS_VIEW, view);
+        checkRequiredFieldsOnModel();
+        checkAppointmentsArePopulated();
+        checkPeopleArePopulated();
+        checkLocationsArePopulated();
+    }
     @Test
     void testCreatePerson_WhenRequestIsValid_ShouldCreatePersonAndUpdateModel() {
         int initialSize = 3;

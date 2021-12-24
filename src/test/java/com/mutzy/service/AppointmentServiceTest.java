@@ -86,6 +86,13 @@ class AppointmentServiceTest {
     }
 
     @Test
+    void testDeleteAppointment() {
+        Integer id = 1234;
+        service.deleteAppointment(id);
+        Mockito.verify(mockAppointmentDao).deleteById(id);
+    }
+
+    @Test
     void testFindAllPeople_WhenNoPeopleStored() {
         Mockito.when(mockPersonDao.findAll()).thenReturn(Collections::emptyIterator);
         List<Person> people = service.findAllPeople();

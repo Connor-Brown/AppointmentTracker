@@ -34,6 +34,7 @@ public class TestHelper {
 
     public static AppointmentResponseDto createAppointmentResponse() {
         AppointmentResponseDto dto = new AppointmentResponseDto();
+        dto.setId(random.nextInt(Integer.MAX_VALUE));
         dto.setDescription(RandomStringUtils.randomAlphanumeric(10));
         dto.setDate(Date.from(Instant.ofEpochSecond(random.longs(START_INSTANT, END_INSTANT).findFirst().getAsLong())));
         dto.setLocation(createLocationDto());
